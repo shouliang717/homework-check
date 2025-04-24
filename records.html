@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>作業抽查紀錄總覽</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h2>作業抽查紀錄總覽</h2>
+
+  <table id="recordTable">
+    <thead>
+      <tr>
+        <th>日期與時間</th><th>科目</th><th>班級</th><th>查閱人員</th><th>查閱份數</th>
+        <th>未繳交</th><th>繳交%</th><th>不合格原因</th><th>補交日</th><th>備註</th>
+      </tr>
+    </thead>
+    <tbody id="recordBody"></tbody>
+  </table>
+
+  <script>
+    const records = JSON.parse(localStorage.getItem('homeworkRecords') || '[]');
+    const tbody = document.getElementById('recordBody');
+
+    records.forEach(data => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${data.date}</td>
+        <td>${data.subject}</td>
+        <td>${data.class}</td>
+        <td>${data.checker}</td>
+        <td>${data.total}</td>
+        <td>${data.missing}</td>
+        <td>${data.submitRate}</td>
+        <td>${data.failReason}</td>
+        <td>${data.resubmitDate}</td>
+        <td>${data.note}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  </script>
+</body>
+</html>

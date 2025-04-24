@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>作業抽查行政紀錄</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    input, select { padding: 5px; }
+    .button { margin-top: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h2>作業抽查行政紀錄表單</h2>
+
+  <form id="checkForm">
+    <label>查閱日期與時間：<input type="datetime-local" id="checkDateTime" required></label><br><br>
+    <label>科目：
+      <select id="subject" required>
+        <option value="">請選擇</option>
+        <option>國語</option>
+        <option>數學</option>
+        <option>英文</option>
+        <option>社會</option>
+        <option>自然</option>
+        <option>生活</option>
+      </select>
+    </label><br><br>
+    <label>班級：
+      <select id="class" required>
+        <option value="">請選擇</option>
+        <option>1甲</option><option>2甲</option><option>3甲</option>
+        <option>4甲</option><option>5甲</option><option>6甲</option>
+      </select>
+    </label><br><br>
+    <label>查閱人員：
+      <select id="checker" required>
+        <option value="">請選擇</option>
+        <option>校長</option>
+        <option>教導主任</option>
+        <option>組長</option>
+      </select>
+    </label><br><br>
+    <label>查閱份數：<input type="number" id="totalCount" required></label><br><br>
+    <label>未繳交作業：<input type="number" id="missingCount" required></label><br><br>
+    <label>繳交百分率：<input type="text" id="submitRate" readonly></label><br><br>
+    <label>不合格原因：<input type="text" id="failReason"></label><br><br>
+    <label>補交日期：<input type="date" id="resubmitDate"></label><br><br>
+    <label>備註：<input type="text" id="note"></label><br><br>
+
+    <button type="submit" class="button">儲存紀錄</button>
+  </form>
+
+  <h3>儲存紀錄</h3>
+  <table id="recordTable">
+    <thead>
+      <tr>
+        <th>日期與時間</th><th>科目</th><th>班級</th><th>查閱人員</th><th>查閱份數</th>
+        <th>未繳交</th><th>繳交%</th><th>不合格原因</th><th>補交日</th><th>備註</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.getElementById('missingCount').addEventListener('input', calculate);
+    document.getElementById('totalCount').addEventListener('input', calculate);
+
+    function calculate() {
+      const total = parseInt(document.getElementById('totalCount').value) || 0;
+      const missing = parseInt(document.getElementById('missingCount').value) || 0;
+      const submitRate = total > 0 ? ((total - missing) / total * 100).toFixed(1) + '%' : '0%';
+      document.getElementById('submitRate').value = submitRate;
+    }
+
+    document.getElementById('checkForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      calculate();
+
+      const record = {
+        date: document.getElementById('checkDateTime').value,
+        subject: document.getElementById('subject').value,
+        class: document.getElementById('class').value,
+        checker: document.getElementById('checker').value,
+        total: document.getElementById('totalCount').value,
+        missing: document.getElementById('missingCount').value,
+        submitRate: document.getElementById('submitRate').value,
+        failReason: document.getElementById('failReason').value,
+        resubmitDate: document.getElementById('resubmitDate').value,
+        note: document.getElementById('note').value
+      };
+
+      const saved = JSON.parse(localStorage.getItem('homeworkRecords') || '[]');
+      saved.push(record);
+      localStorage.setItem('homeworkRecords', JSON.stringify(saved));
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${record.date}</td>
+        <td>${record.subject}</td>
+        <td>${record.class}</td>
+        <td>${record.checker}</td>
+        <td>${record.total}</td>
+        <td>${record.missing}</td>
+        <td>${record.submitRate}</td>
+        <td>${record.failReason}</td>
+        <td>${record.resubmitDate}</td>
+        <td>${record.note}</td>
+      `;
+      document.querySelector('#recordTable tbody').appendChild(row);
+      this.reset();
+    });
+  </script>
+</body>
+</html>
